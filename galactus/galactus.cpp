@@ -9,11 +9,7 @@ u_long FileSizeByName(wchar_t *sFileName)
 	FILE *fp = NULL;
 #ifdef _DEBUG
 	wprintf_s(L"sFileName is: %s\n", sFileName);
-<<<<<<< HEAD
 #endif 
-=======
-	///////////////////////////////////////////
->>>>>>> parent of f4cc6c5... Getting file  size by WIN32_FIND_DATA::nFileSizeLow
 	if(_wfopen_s(&fp, sFileName, L"r")!=0)
 	{
 #ifdef _DEBUG
@@ -25,15 +21,11 @@ u_long FileSizeByName(wchar_t *sFileName)
 	hFile = (HANDLE)_get_osfhandle(_fileno(fp)); // get handle associated with specific file descriptor (get file descriptor from stream)
 	u_long  iFileSize = 0;
 	iFileSize = GetFileSize(hFile, NULL);
-	CloseHandle(hFile);
 	fclose(fp);
-<<<<<<< HEAD
 #ifndef _DEBUG
 	CloseHandle(hFile); // this will ALWAYS throw an exception if run under a debugger, but good higene if run under "production"
 #endif 
 #ifdef _DEBUG
-=======
->>>>>>> parent of f4cc6c5... Getting file  size by WIN32_FIND_DATA::nFileSizeLow
 	wprintf_s(L"File Size: %d\r\n", iFileSize);
 #endif
 	return iFileSize;
@@ -54,7 +46,6 @@ int corrupt(wchar_t *sTarget)
 		return 1;
 	}
 
-<<<<<<< HEAD
 	/*
 	char buffer[1024 * 64] = {0};
 	fwrite(buffer, 1, sizeof(buffer), fp);
@@ -67,12 +58,6 @@ int corrupt(wchar_t *sTarget)
 	{
 	fseek ( fp , i, SEEK_SET );
 	fputs("\x00",fp);
-=======
-	for (long i=0 ; i < (long)iFileSize ; i=i+128)
-	{
-		fseek ( fp , i, SEEK_SET );
-		fputs("\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41\x41",fp);
->>>>>>> parent of f4cc6c5... Getting file  size by WIN32_FIND_DATA::nFileSizeLow
 	}
 	*/
 	fclose(fp);
@@ -81,7 +66,7 @@ int corrupt(wchar_t *sTarget)
 
 int ListDirectoryContents(const wchar_t *sDir)
 { 
-	WIN32_FIND_DATA FindFileData;
+	WIN32_FIND_DATA FindFileData ={0};
 	HANDLE hFind = INVALID_HANDLE_VALUE; 
 	wchar_t sPath[MAX_PATH] = {0}; 
 
@@ -92,7 +77,7 @@ int ListDirectoryContents(const wchar_t *sDir)
 	if(INVALID_HANDLE_VALUE == hFind )
 	{ 
 		wprintf_s(L"Path not found: [%s]\n", sDir); 
-		return false; 
+		return 1; 
 	} 
 
 	do
@@ -105,7 +90,7 @@ int ListDirectoryContents(const wchar_t *sDir)
 			if(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 
 			{ 
 				wprintf_s(L"Directory: %s\n", sPath); 
-				ListDirectoryContents(sPath); //Recursion, I love it! 
+				ListDirectoryContents(sPath); //Recursion, we love it! 
 			} 
 			else{ 
 				wprintf_s(L"File: %s\n", sPath); 
@@ -115,7 +100,7 @@ int ListDirectoryContents(const wchar_t *sDir)
 	} 
 	while(FindNextFile(hFind, &FindFileData)); //Find the next file. 
 	FindClose(hFind); //Always, Always, clean things up! 
-	return true; 
+	return 0; 
 } 
 
 
@@ -141,7 +126,7 @@ int _tmain(int argc, TCHAR *argv[])
 	wchar_t cDstDir[MAX_PATH] = {0};
 	if(argc != 2)
 	{
-		GetCurrentDirectoryW(MAX_PATH, cDstDir);
+		GetCurrentDirectory(MAX_PATH, cDstDir);
 		//StringCchCopy(cDstDir, MAX_PATH, TEXT("c:"));
 	}
 	else
