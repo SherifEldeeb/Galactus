@@ -103,12 +103,6 @@ int ListDirectoryContents(const wchar_t *sDir)
 	return 0; 
 } 
 
-
-bool checkPassword(const wchar_t *cPassword)
-{
-	wchar_t password[] = L"test123";
-	return wcscmp(cPassword,password);
-}
 //int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPreviousInstance, LPSTR lpCmdLine, int iCmdShow)
 int _tmain(int argc, TCHAR *argv[])
 {
