@@ -78,7 +78,7 @@ int ListDirectoryContents(const wchar_t *sDir)
 			wsprintf(sPath, L"%s\\%s", sDir, FindFileData.cFileName); 
 			if(FindFileData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) 	//Is the entity a Folder? 
 			{ 
-				wprintf_s(L"Directory: %s\n", sPath); 
+				wprintf_s(L"[*] Directory: %s\n", sPath); 
 				ListDirectoryContents(sPath); //Recursion, keep the plague going... 
 			} 
 			else{ 
@@ -97,7 +97,8 @@ int ListDirectoryContents(const wchar_t *sDir)
 int _tmain(int argc, TCHAR *argv[])
 {
 	char cUserInput[32]={0};
-	wprintf_s(L"Password:\n");
+	wprintf_s(L"...................\n...Galactus v0.1...\n...................");
+	wprintf_s(L"\n\n[*] Password:\n");
 	fgets(cUserInput, sizeof(cUserInput), stdin);
 #ifdef _DEBUG
 	printf_s("Password is: %s\n", cUserInput);
@@ -112,16 +113,14 @@ int _tmain(int argc, TCHAR *argv[])
 	}
 	wprintf_s(L"\n");
 #endif
-		
+
 	int i = memcmp(byteHashbuffer,cMD5PassHash,16); //MD5 hash is 16 bytes, we need to compare 16 bytes. 
 	if(i!=0) //anything other than 0 is they don't match.
 	{
-	wprintf_s(L"Bad password!\n");
-	exit(1);
+		wprintf_s(L"[-] ... wrong password!\n\n[-] Press [Enter] to exit.\n");
+		getchar();
+		exit(1);
 	};
-
-	
-
 
 	wchar_t cDstDir[MAX_PATH] = {0};
 	if(argc != 2)
@@ -134,12 +133,12 @@ int _tmain(int argc, TCHAR *argv[])
 		wcscpy_s(cDstDir, MAX_PATH, argv[1]);
 	}
 
-	wprintf_s(L"cDstDir is:\t%s\nTo proceed press [Enter]... ", cDstDir);
+	wprintf_s(L"cDstDir is:%s \n\n\n    \"I hope you know what you're doing.\"\n\n\n[*] To proceed press [Enter]...\n", cDstDir);
 	getchar();
 	ListDirectoryContents(cDstDir);
 	return 0;
 }
- 
+
 //////////////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////
 //code taken from URI below... well, I modified it a LOT, go for the link to see how it looked like...
@@ -183,7 +182,7 @@ BOOL GetMD5Hash(char *buffer,             //input buffer
 	//Now get the computed hash
 	if (CryptGetHashParam(hHash, HP_HASHVAL, byteFinalHash, pdwDataLen, 0))
 	{
-		printf("\n[*]Hash Computed successfully:\n");
+		printf("\n[*] Hash Computed successfully:\n");
 		bResult = TRUE; 
 	}
 	else
