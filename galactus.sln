@@ -3,6 +3,8 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "galactus", "galactus\galactus.vcxproj", "{7AFEFD37-52D8-42A8-9C6A-11D5F6C645C5}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GalactusUSB", "GalactusUSB\GalactusUSB.vcxproj", "{14E45D71-43DE-4BA9-8D26-A91A9E86E83D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +15,10 @@ Global
 		{7AFEFD37-52D8-42A8-9C6A-11D5F6C645C5}.Debug|Win32.Build.0 = Debug|Win32
 		{7AFEFD37-52D8-42A8-9C6A-11D5F6C645C5}.Release|Win32.ActiveCfg = Release|Win32
 		{7AFEFD37-52D8-42A8-9C6A-11D5F6C645C5}.Release|Win32.Build.0 = Release|Win32
+		{14E45D71-43DE-4BA9-8D26-A91A9E86E83D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{14E45D71-43DE-4BA9-8D26-A91A9E86E83D}.Debug|Win32.Build.0 = Debug|Win32
+		{14E45D71-43DE-4BA9-8D26-A91A9E86E83D}.Release|Win32.ActiveCfg = Release|Win32
+		{14E45D71-43DE-4BA9-8D26-A91A9E86E83D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
