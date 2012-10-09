@@ -128,7 +128,9 @@ LRESULT CALLBACK MainWndProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
 			{                    
 				// Class of devices
 			case DBT_DEVTYP_DEVICEINTERFACE:
+#ifdef _DEBUG
 				MessageBox(NULL, PdevDEVICEINTERFACE->dbcc_name, "DEBUG", MB_OK);
+#endif
 				break;
 
 				// Logical volume
